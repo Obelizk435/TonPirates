@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏴‍☠️ TonPirates - The Island of Tonau</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+
+        body {
+            font-family: 'Pirata One', cursive;
+            text-align: center;
+            background: url('https://i.imgur.com/1U9DUWs.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #2b2b2b;
+            padding: 50px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-shadow: 3px 3px 5px gold;
+        }
+
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px;
+            text-shadow: 2px 2px 5px gold;
+        }
+
+        .play-button {
+            background-color: gold;
+            border: none;
+            padding: 15px 30px;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 3px 3px 5px black;
+            transition: transform 0.2s;
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        #loading-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .loading-container {
+            position: relative;
+            width: 25%;
+            height: 30px;
+            background: #8b0000;
+            border-radius: 15px;
+            margin: auto;
+            overflow: hidden;
+            border: 2px solid black;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #119fb6;
+            transition: width 0.5s linear;
+        }
+
+        .ship {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 35px;
+            transition: left 0.5s linear;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏴‍☠️ TonPirates - The Island of Tonau</h1>
+    <p>The game launches on March 1st, 2025, at 22:00 (Brussels time)</p>
+    
+    <div id="timer"></div>
+
+    <button class="play-button" id="playButton">▶ Play</button>
+
+    <div id="loading-container">
+        <p id="status-text">🏝️Trying to dock in Tonau🏝️</p>
+        <div class="loading-container">
+            <div class="progress" id="progress"></div>
+            <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTMyMXl6aW54bnplazhjcGxjOXZhbGF2dHlpNno3dm1kc3Uwbml5aiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Z4ONBSNORl0bITF5KL/giphy.gif" class="ship" id="ship">
+        </div>
+    </div>
+
+    <script>
+        function updateCountdown() {
+            const targetDate = new Date("2025-03-01T22:00:00+01:00").getTime();
+            const now = new Date().getTime();
+            const timeLeft = targetDate - now;
+
+            if (timeLeft > 0) {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                document.getElementById("timer").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                document.getElementById("timer").innerHTML = "🏝️ Game is Live! The plundering begins now!";
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        document.getElementById("playButton").addEventListener("click", function() {
+            this.classList.add("hidden"); // Verberg de Play-knop
+            document.getElementById("loading-container").style.display = "block"; // Toon de loading bar
+            startLoading();
+        });
+
+        function startLoading() {
+            let progress = 0;
+            const progressBar = document.getElementById("progress");
+            const ship = document.getElementById("ship");
+            const barWidth = document.querySelector(".loading-container").offsetWidth - 60;
+
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress += 10;
+                    progressBar.style.width = progress + "%";
+                    ship.style.left = (progress / 100) * barWidth + "px";
+                } else {
+                    clearInterval(interval);
+                    document.getElementById("status-text").innerHTML = "🏝️🏴‍☠Tonau is not yet safed!";
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+
+
