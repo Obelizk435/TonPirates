@@ -1,0 +1,103 @@
+// This is your Prisma schema file for version 6
+// Using MySQL as the database
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Player {
+  id            String    @id @default(uuid())
+  walletAddress String    @unique
+  islandName    String?   @db.VarChar(255)
+  islandLevel   Int       @default(1)
+  tnauBalance   Decimal   @default(0) @db.Decimal(65, 30)
+  tonBalance    Decimal   @default(0) @db.Decimal(65, 30)
+  rum           Int       @default(0)
+  sugar         Int       @default(0)
+  wood          Int       @default(0)
+  plunderTips   Int       @default(0)
+  createdAt     DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime  @updatedAt @db.Timestamp(6)
+  ships         Ship[]
+  crews         Crew[]
+  plunders      Plunder[]
+  referredBy    String?   @db.VarChar(255)
+  referralCode  String    @unique @db.VarChar(255)
+
+  @@index([walletAddress])
+  @@map("players")
+}
+
+model Ship {
+  id            String    @id @default(uuid())
+  tokenId       String?   @unique @db.VarChar(255)
+  name          String    @db.VarChar(255)
+  type          String    @db.VarChar(255)
+  isActive      Boolean   @default(false)
+  earningsPerDay Decimal   @db.Decimal(65, 30)
+  plunderLevel  Int
+  imageUrl      String    @db.Text
+  crewMembers   Int       @default(0)
+  maxCrew       Int
+  player        Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId      String
+  crew          Crew[]
+  createdAt     DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime  @updatedAt @db.Timestamp(6)
+
+  @@index([playerId])
+  @@map("ships")
+}
+
+model Crew {
+  id        String    @id @default(uuid())
+  ship      Ship      @relation(fields: [shipId], references: [id], onDelete: Cascade)
+  shipId    String
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId  String
+  quantity  Int
+  createdAt DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @db.Timestamp(6)
+
+  @@index([shipId])
+  @@index([playerId])
+  @@map("crews")
+}
+
+model Plunder {
+  id          String    @id @default(uuid())
+  player      Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId    String
+  status      String    @db.VarChar(255) // "active", "completed", "failed"
+  reward      Decimal?  @db.Decimal(65, 30)
+  startedAt   DateTime  @default(now()) @db.Timestamp(6)
+  completedAt DateTime? @db.Timestamp(6)
+  resources   Json?     // Stores earned resources
+
+  @@index([playerId])
+  @@index([status])
+  @@map("plunders")
+}
+
+model Transaction {
+  id        String    @id @default(uuid())
+  type      String    @db.VarChar(255) // "earn", "spend", "transfer"
+  resource  String    @db.VarChar(255) // "tnau", "ton", "rum", "sugar", "wood"
+  amount    Decimal   @db.Decimal(65, 30)
+  fromId    String?   @db.VarChar(255) // Player ID for transfers
+  toId      String?   @db.VarChar(255) // Player ID for transfers
+  reason    String    @db.VarChar(255) // "plunder", "crew_hire", "ship_purchase", etc.
+  createdAt DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([type])
+  @@index([resource])
+  @@index([fromId])
+  @@index([toId])
+  @@map("transactions")
+}
+
